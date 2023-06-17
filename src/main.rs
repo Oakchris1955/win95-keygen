@@ -24,7 +24,12 @@ impl fmt::Display for KeyType {
 }
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = "long")]
+#[command(
+    author,
+    version,
+    about,
+    long_about = "A key generation utility to generate valid product key for the Win95 and Win98"
+)]
 struct Args {
     #[arg(value_enum)]
     keytype: Option<KeyType>,
