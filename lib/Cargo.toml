@@ -3,5 +3,10 @@ name = "win95-keygen"
 version = "0.1.0"
 edition = "2021"
 
+authors = ["Oakchris1955"]
+description = "A lightweight library to generate valid Win95 product keys"
+homepage = "https://github.com/Oakchris1955/win95-keygen"
+license = "MIT"
+
 [dependencies]
 rand = "0.8.5"
