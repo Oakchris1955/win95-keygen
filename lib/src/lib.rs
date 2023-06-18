@@ -1,3 +1,26 @@
+#![warn(missing_docs)]
+//! A lightweight library used to generate valid Win95 keys
+//!
+//! Usage of the library is pretty simple;
+//! each function takes no arguments and returns a [`String`] containing a valid key
+//!
+//! # Example
+//! ```
+//! // Import the library
+//! use win95_keygen as keygen;
+//!
+//! fn main() {
+//!     println!("Generating a valid Windows 95 CD activation key...");
+//!
+//!     // Generate a valid CD key and print it to the console
+//!     let key: String = keygen::cd_normal();
+//!     println!("Key: {}", key);
+//! }
+//! ```
+//!
+//! References:
+//! - Key generation algorithm: <https://gurney.dev/posts/mod7/>
+
 use rand::Rng;
 
 fn random_within_range(start: usize, end: usize) -> usize {
@@ -23,6 +46,13 @@ fn seven_div_generator(length: usize) -> String {
         .collect::<String>()
 }
 
+/// Returns a random valid CD key
+///
+/// This kind of key is in the following format: XXX-XXXXXXX
+///
+/// The first segment can be anything between 000 and 999, except 333, 444, 555, 666, 777, 888 and 999
+///
+/// The second segment can be anything, as long as the sum of all the digits is divisible with the number 7 (the so-called mod7 algorithm)
 pub fn cd_normal() -> String {
     let first_digits: usize;
 
@@ -40,6 +70,13 @@ pub fn cd_normal() -> String {
     format!("{:0>3}-{}", first_digits, seven_div_generator(7))
 }
 
+/// Returns a random valid 11-digit long CD key (used for activating Office 97)
+///
+/// This kind of key is in the following format: XXXX-XXXXXXX
+///
+/// The first segment can be anything between 0000 and 9999, as long as the last digit is equal to the last digit + 1 or 2 (when the result is greater than 9, it "overflows" to 0 or 1)
+///
+/// The second segment can be anything, as long as the sum of all the digits is divisible with the number 7 (the so-called mod7 algorithm)
 pub fn cd_long() -> String {
     let first_digits: usize = random_within_range(0, 999);
     let mut check_digit = first_digits % 10 + 1;
@@ -55,6 +92,15 @@ pub fn cd_long() -> String {
     )
 }
 
+/// Returns a random valid OEM key
+///
+/// This kind of key is in the following format: XXXXX-OEM-0XXXXXX-XXXXX
+///
+/// The first 3 digits can be anything from 001 to 366 and the following 2 anything from 95 to 02 (represents the day when the key was printed)
+///
+/// The second segment can be anything, as long as the sum of all the digits is divisible with the number 7 (the so-called mod7 algorithm)
+///
+/// The last segment is valid as long as all the digits are numerical (so, anything from 00000 to 99999)
 pub fn oem() -> String {
     let date = random_within_range(1, 366);
 
