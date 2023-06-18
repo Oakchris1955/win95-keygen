@@ -1,11 +1,12 @@
 [package]
 name = "win95-keygen"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 authors = ["Oakchris1955"]
 description = "A lightweight library to generate valid Win95 product keys"
 homepage = "https://github.com/Oakchris1955/win95-keygen"
+readme = "README.md"
 license = "MIT"
 
 [dependencies]
