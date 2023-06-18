@@ -1,0 +1,9 @@
+[package]
+name = "win95-keygen-bin"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+clap = { version = "4.3.4", features = [ "derive" ] }
+win95-keygen = { path = "../lib" }
