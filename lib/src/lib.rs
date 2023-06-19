@@ -1,27 +1,30 @@
 #![warn(missing_docs)]
-//! A lightweight library used to generate valid Win95 keys
+//! A lightweight library used to generate and validate Win95 keys
 //!
-//! Usage of the library is pretty simple;
-//! each function takes no arguments and returns a [`String`] containing a valid key
-//!
-//! # Example
-//! ```
-//! // Import the library
-//! use win95_keygen as keygen;
-//!
-//! fn main() {
-//!     println!("Generating a valid Windows 95 CD activation key...");
-//!
-//!     // Generate a valid CD key and print it to the console
-//!     let key: String = keygen::cd_normal();
-//!     println!("Key: {}", key);
-//! }
-//! ```
+//! Usage of the library is pretty simple
 //!
 //! References:
 //! - Key generation algorithm: <https://gurney.dev/posts/mod7/>
 
 pub mod generate {
+    //! Generate new valid Win95 keys
+    //!
+    //! Each function in this module takes no arguments and returns a [`String`] containing a valid key
+    //!
+    //! # Example
+    //! ```
+    //! // Import the library
+    //! use win95_keygen::generate as keygen;
+    //!
+    //! fn main() {
+    //!     println!("Generating a valid Windows 95 CD activation key...");
+    //!
+    //!     // Generate a valid CD key and print it to the console
+    //!     let key: String = keygen::cd_normal();
+    //!     println!("Key: {}", key);
+    //! }
+    //! ```
+
     use rand::Rng;
 
     fn random_within_range(start: usize, end: usize) -> usize {
@@ -124,6 +127,35 @@ pub mod generate {
 }
 
 pub mod validate {
+    //! Check validity of Win95 keys
+    //!
+    //! # Example
+    //! ```
+    //! // This example generates a random Win95 key, then checks it's validity
+    //!
+    //! // Import the library
+    //! use win95_keygen::{generate as keygen, validate as keyvalid};
+    //!
+    //! fn main() {
+    //!     println!("Generating a valid Windows 95 OEM activation key...");
+    //!
+    //!     // Generate a valid OEM key and print it to the console
+    //!     let key: String = keygen::cd_normal();
+    //!     println!("Key: {}", key);
+    //!
+    //!     // Check if the key generated is valid
+    //!     println!("Checking key validity...");
+    //!     let is_valid = keyvalid::cd_normal(&key);
+    //!
+    //!     // If yes, log to console. Otherwise, panic
+    //!     if is_valid {
+    //!         println!("Key generated is valid!");
+    //!     } else {
+    //!         panic!("Generated erroneous key!");
+    //!     }
+    //! }
+    //! ```
+
     fn numerical_overflow(number: usize, limit: usize) -> usize {
         let remainder = number % limit;
         if remainder >= limit {
@@ -147,6 +179,13 @@ pub mod validate {
         sum % 7 == 0
     }
 
+    /// Check if a [`String`] is a valid CD key
+    ///
+    /// This kind of key is in the following format: XXX-XXXXXXX
+    ///
+    /// The first segment can be anything between 000 and 999, except 333, 444, 555, 666, 777, 888 and 999
+    ///
+    /// The second segment can be anything, as long as the sum of all the digits is divisible with the number 7 (the so-called mod7 algorithm)
     pub fn cd_normal(key: &String) -> bool {
         if key.len() == 11 {
             if let (Ok(first_segment), Ok(last_segment)) =
@@ -163,6 +202,13 @@ pub mod validate {
         false
     }
 
+    /// Checks if a [`String`] is a valid 11-digit long CD key (used for activating Office 97)
+    ///
+    /// This kind of key is in the following format: XXXX-XXXXXXX
+    ///
+    /// The first segment can be anything between 0000 and 9999, as long as the last digit is equal to the last digit + 1 or 2 (when the result is greater than 9, it "overflows" to 0 or 1)
+    ///
+    /// The second segment can be anything, as long as the sum of all the digits is divisible with the number 7 (the so-called mod7 algorithm)
     pub fn cd_long(key: &String) -> bool {
         if key.len() == 12 {
             if let (Ok(first_segment), Ok(last_segment)) =
@@ -180,6 +226,15 @@ pub mod validate {
         false
     }
 
+    /// Checks if a [`String`] is a valid OEM key
+    ///
+    /// This kind of key is in the following format: XXXXX-OEM-0XXXXXX-XXXXX
+    ///
+    /// The first 3 digits can be anything from 001 to 366 and the following 2 anything from 95 to 02 (represents the day when the key was printed)
+    ///
+    /// The second segment can be anything, as long as the sum of all the digits is divisible with the number 7 (the so-called mod7 algorithm)
+    ///
+    /// The last segment is valid as long as all the digits are numerical (so, anything from 00000 to 99999)
     pub fn oem(key: &String) -> bool {
         if key.len() == 23 {
             if let (Ok(date), Ok(year), Ok(numerical_segment), Ok(_)) = (
