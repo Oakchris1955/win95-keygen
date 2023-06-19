@@ -1,7 +1,7 @@
 use clap::{Parser, ValueEnum};
 use std::{fmt, io};
 
-use win95_keygen as keygen;
+use win95_keygen::generate as keygen;
 
 #[derive(ValueEnum, Debug, Clone)]
 #[clap(rename_all = "kebab_case")]
