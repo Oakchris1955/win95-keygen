@@ -255,3 +255,36 @@ pub mod validate {
         false
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{generate as keygen, validate as keyvalid};
+
+    fn general_test(create_func: fn() -> String, check_func: fn(&String) -> bool, n_times: usize) {
+        for iteration in 0..n_times {
+            let key = create_func();
+
+            if !check_func(&key) {
+                panic!(
+                    "Test failed at {} out of {} iterations. The erroneous key was: {}",
+                    iteration, n_times, key
+                )
+            }
+        }
+    }
+
+    #[test]
+    fn cd_normal() {
+        general_test(keygen::cd_normal, keyvalid::cd_normal, 1000);
+    }
+
+    #[test]
+    fn cd_long() {
+        general_test(keygen::cd_long, keyvalid::cd_long, 1000);
+    }
+
+    #[test]
+    fn oem() {
+        general_test(keygen::oem, keyvalid::oem, 1000);
+    }
+}
