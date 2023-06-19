@@ -243,11 +243,12 @@ pub mod validate {
                 key[10..17].parse::<usize>(),
                 key[18..].parse::<usize>(),
             ) {
-                return date >= 1 && date <= 366 && (year >= 95 && year <= 99)
-                    || year <= 2
-                        && &key[5..10] == "-OEM-"
-                        && numerical_segment % 10_usize.pow(7) == 0
-                        && check_mod7(numerical_segment, 6);
+                return date >= 1
+                    && date <= 366
+                    && ((year >= 95 && year <= 99) || year <= 2)
+                    && &key[5..10] == "-OEM-"
+                    && get_nth_digit_from_end(numerical_segment, 7) == 0
+                    && check_mod7(numerical_segment, 6);
             }
         }
 
