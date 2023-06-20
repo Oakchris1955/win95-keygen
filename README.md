@@ -14,7 +14,7 @@ Install the Rust program language in your system, clone this repo and `cd` to it
 
 ### Usage
 
-```
+```text
 Usage: win95-keygen-bin.exe [KEYTYPE]
 
 Arguments:
