@@ -1,7 +1,7 @@
 #![warn(missing_docs)]
 //! A lightweight library used to generate and validate Win95 keys
 //!
-//! Usage of the library is pretty simple
+//! Usage of the library is pretty simple, for more info check the [`generate`] and [`validate`] modules
 //!
 //! References:
 //! - Key generation algorithm: <https://gurney.dev/posts/mod7/>
