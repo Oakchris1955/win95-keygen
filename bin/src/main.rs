@@ -1,7 +1,8 @@
-use clap::{Parser, ValueEnum};
+use clap::{error::ErrorKind, CommandFactory, Parser, ValueEnum};
+use std::process::exit;
 use std::{fmt, io};
 
-use win95_keygen::generate as keygen;
+use win95_keygen::{generate as keygen, validate as keyvalid};
 
 #[derive(ValueEnum, Debug, Clone)]
 #[clap(rename_all = "kebab_case")]
@@ -9,6 +10,13 @@ enum KeyType {
     CDNormal,
     CDLong,
     OEM,
+}
+
+#[derive(ValueEnum, Debug, Clone)]
+#[clap(rename_all = "kebab_case")]
+enum Action {
+    Generate,
+    Validate,
 }
 
 impl fmt::Display for KeyType {
@@ -35,6 +43,12 @@ impl fmt::Display for KeyType {
 struct Args {
     #[arg(value_enum)]
     keytype: Option<KeyType>,
+
+    #[arg(short, long, value_enum, default_value_t = Action::Generate)]
+    action: Action,
+
+    #[arg(help = "The product key to check if the \"--action\" flag is set to \"validate\"")]
+    input_key: Option<String>,
 }
 
 fn read_line<S>(msg: S) -> String
@@ -81,14 +95,43 @@ fn main() {
 
     let keytype = args.keytype.unwrap();
 
-    println!("Generating {} key...", keytype);
+    match args.action {
+        Action::Generate => {
+            println!("Generating {} key...", keytype);
 
-    println!(
-        "{}",
-        match keytype {
-            KeyType::CDNormal => keygen::cd_normal(),
-            KeyType::CDLong => keygen::cd_long(),
-            KeyType::OEM => keygen::oem(),
+            println!(
+                "{}",
+                match keytype {
+                    KeyType::CDNormal => keygen::cd_normal(),
+                    KeyType::CDLong => keygen::cd_long(),
+                    KeyType::OEM => keygen::oem(),
+                }
+            )
         }
-    )
+        Action::Validate => {
+            if let Some(input_key) = args.input_key {
+                let is_valid = match keytype {
+                    KeyType::CDNormal => keyvalid::cd_normal(&input_key),
+                    KeyType::CDLong => keyvalid::cd_long(&input_key),
+                    KeyType::OEM => keyvalid::oem(&input_key),
+                };
+
+                if is_valid {
+                    println!("The production key supplied is valid");
+                    exit(0);
+                } else {
+                    println!("The production key supplied isn't valid");
+                    exit(1);
+                }
+            } else {
+                let mut cmd = Args::command();
+
+                cmd.error(
+                    ErrorKind::ArgumentConflict,
+                    "In order to use the \"validate\" action, you must pass an input key after the key type",
+                )
+                .exit();
+            }
+        }
+    }
 }
